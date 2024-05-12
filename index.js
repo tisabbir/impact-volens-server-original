@@ -33,13 +33,20 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    // types collection db
-
+    // collection db
     const typesCollection = client.db('volunteeringDB').collection('typesCollection');
+    const bannerCollection = client.db('volunteeringDB').collection('bannerCollection');
 
     
+    //types
     app.get('/types', async(req, res)=> {
         const types = await typesCollection.find().toArray();
+        res.send(types)
+    })
+
+    //banners
+    app.get('/banners', async(req, res)=> {
+        const types = await bannerCollection.find().toArray();
         res.send(types)
     })
 
