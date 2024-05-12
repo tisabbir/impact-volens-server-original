@@ -36,6 +36,7 @@ async function run() {
     // collection db
     const typesCollection = client.db('volunteeringDB').collection('typesCollection');
     const bannerCollection = client.db('volunteeringDB').collection('bannerCollection');
+    const needCollection = client.db('volunteeringDB').collection('needCollection');
 
     
     //types
@@ -44,9 +45,16 @@ async function run() {
         res.send(types)
     })
 
-    //banners
+    //banners   
     app.get('/banners', async(req, res)=> {
         const types = await bannerCollection.find().toArray();
+        res.send(types)
+    })
+
+
+    //need   
+    app.get('/need', async(req, res)=> {
+        const types = await needCollection.find().toArray();
         res.send(types)
     })
 
