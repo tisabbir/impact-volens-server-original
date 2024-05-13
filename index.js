@@ -37,6 +37,7 @@ async function run() {
     const typesCollection = client.db('volunteeringDB').collection('typesCollection');
     const bannerCollection = client.db('volunteeringDB').collection('bannerCollection');
     const needCollection = client.db('volunteeringDB').collection('needCollection');
+    const postCollection = client.db('volunteeringDB').collection('postCollection');
 
     
     //types
@@ -58,6 +59,13 @@ async function run() {
         res.send(types)
     })
 
+    //add volunteer post
+
+    app.post('/post', async(req, res)=>{
+        const post = req.body;
+        const result = await postCollection.insertOne(post);
+        res.send(result);
+    })
 
 
 
