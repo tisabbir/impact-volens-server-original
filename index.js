@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors')
 require('dotenv').config();
 // require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 //app
 const app = express();
@@ -60,6 +60,18 @@ async function run() {
     })
 
     //add volunteer post
+
+    app.get('/post', async(req, res)=> {
+        const posts = await postCollection.find().toArray();
+        res.send(posts)
+    })
+
+    app.get('/post/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await postCollection.findOne(query);
+        res.send(result);
+    })
 
     app.post('/post', async(req, res)=>{
         const post = req.body;
