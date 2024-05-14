@@ -38,6 +38,7 @@ async function run() {
     const bannerCollection = client.db('volunteeringDB').collection('bannerCollection');
     const needCollection = client.db('volunteeringDB').collection('needCollection');
     const postCollection = client.db('volunteeringDB').collection('postCollection');
+    const requestCollection = client.db('volunteeringDB').collection('requestCollection');
 
     
     //types
@@ -76,6 +77,20 @@ async function run() {
     app.post('/post', async(req, res)=>{
         const post = req.body;
         const result = await postCollection.insertOne(post);
+        res.send(result);
+    })
+
+
+    //volunteer Request
+
+    app.get('/request', async(req, res)=> {
+        const requests = await requestCollection.find().toArray();
+        res.send(requests)
+    })
+
+    app.post('/request', async(req, res)=>{
+        const request = req.body;
+        const result = await requestCollection.insertOne(request);
         res.send(result);
     })
 
