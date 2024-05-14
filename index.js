@@ -80,6 +80,34 @@ async function run() {
         res.send(result);
     })
 
+    //update posts
+    app.put('/post/:id', async(req, res)=>{
+
+        const id = req.params.id;
+        console.log(id);
+        const filter = {_id : new ObjectId(id)}
+        const options = { upsert: true };
+        const incomingPost = req.body;
+        console.log('incoming post', incomingPost);
+        //updated value
+        const updatePost = {
+            $set: {
+              
+                title : incomingPost.updatedTitle,
+                thumbnail : incomingPost.updatedThumbnail,
+                description : incomingPost.updatedDescription,
+                category : incomingPost.updatedCategory,
+                location : incomingPost.updatedLocation,
+                numberOfVolunteer : incomingPost.updatedNumberOfVolunteer,
+                deadline : incomingPost.updatedDeadline,
+              
+            },
+          };
+
+          const result = await postCollection.updateOne(filter, updatePost,options)
+          res.send(result)
+    })
+
     //delete posts
     app.delete('/post/:id', async(req, res)=>{
         const id = req.params.id;
