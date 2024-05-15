@@ -130,10 +130,17 @@ async function run() {
 
     app.get('/post', verifyToken, async(req, res)=> {
         
+        console.log('request er query', req.query?.email);
         console.log('token jei bektir', req.user);
 
+        if(req.query.email !== req.user.email){
+            return res.status(403).send({message: 'forbidden access'})
+        }
 
-        const query = {email:req.user.email}
+        let query = {};
+        if (req.query?.email) {
+            query = { email: req.query.email }
+        }
 
         const posts = await postCollection.find(query).toArray();
         res.send(posts)
