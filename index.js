@@ -147,21 +147,21 @@ async function run() {
     })
 
 
-    app.get('/post/:id', async(req, res)=>{
+    app.get('/post/:id', verifyToken, async(req, res)=>{
         const id = req.params.id;
         const query = {_id: new ObjectId(id)}
         const result = await postCollection.findOne(query);
         res.send(result);
     })
 
-    app.post('/post', async(req, res)=>{
+    app.post('/post', verifyToken, async(req, res)=>{
         const post = req.body;
         const result = await postCollection.insertOne(post);
         res.send(result);
     })
 
     //update posts
-    app.put('/post/:id', async(req, res)=>{
+    app.put('/post/:id',verifyToken, async(req, res)=>{
 
         const id = req.params.id;
         // console.log(id);
