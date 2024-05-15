@@ -14,7 +14,7 @@ const port = process.env.PORT || 5000;
 
 //middle wares 
 app.use(cors({
-    origin : ['http://localhost:5173'],
+    origin : ['http://localhost:5173', 'https://impact-volens.web.app', 'https://impact-volens.firebaseapp.com'],
     credentials : true,
 }))
 app.use(express.json())
@@ -60,10 +60,16 @@ const client = new MongoClient(uri, {
   }
 });
 
+const cookieOption = {
+    httpOnly:true,
+    sameSite:process.env.NODE_ENV === "production" ? "none" : "strict",
+    secure:process.env.NODE_ENV === "production" ? true : false,
+}
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     // collection db
     const typesCollection = client.db('volunteeringDB').collection('typesCollection');
@@ -78,16 +84,12 @@ async function run() {
     app.post('/jwt', async(req, res)=>{
         const user = req.body;
        
-        console.log(user);
+        // console.log(user);
 
         const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'1h'})
 
         res
-        .cookie('token', token, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-        })
+        .cookie('token', token, cookieOption )
         .send({success : true})
     })
 
@@ -130,8 +132,8 @@ async function run() {
 
     app.get('/post', verifyToken, async(req, res)=> {
         
-        console.log('request er query', req.query?.email);
-        console.log('token jei bektir', req.user);
+        // console.log('request er query', req.query?.email);
+        // console.log('token jei bektir', req.user);
 
         if(req.query.email !== req.user.email){
             return res.status(403).send({message: 'forbidden access'})
@@ -163,7 +165,7 @@ async function run() {
     //update posts
     app.put('/post/:id',verifyToken, async(req, res)=>{
 
-        const id = req.params.id;
+        const id = req.params.id; 
         // console.log(id);
         const filter = {_id : new ObjectId(id)}
         const options = { upsert: true };
@@ -209,7 +211,7 @@ async function run() {
         }
 
 
-        console.log(req.query.email === req.user.email);
+        // console.log(req.query.email === req.user.email);
         //valo kotha j, token ta tomar, kintu tomak to ar sobar data dibo na, tomake dibo shudu tomar data
         //se jonne amar database theke tomar data gula filter korbo, kemne korbo ? query diye korbo.
         
@@ -245,8 +247,8 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
