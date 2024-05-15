@@ -18,7 +18,35 @@ app.use(cors({
     credentials : true,
 }))
 app.use(express.json())
+app.use(cookieParser()) // client theke ana cookie server porar jonne eta middle ware hishebe kaj korbe
 
+
+//my middlewares
+const verifyToken = (req, res, next)=>{
+    //
+
+    const token = req?.cookies?.token;
+
+    // console.log('from middle ware monsters', token);
+
+    //token jodi na thake
+    if(!token){
+        return res.status(401).send({message : 'unauthorized access'})
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
+        if(err){
+            return res.status(401).send({message:'unauthorized'})
+        }
+        req.user = decoded;
+        // console.log('middle monster',req.user);
+        next();
+    })
+
+    // next();
+
+
+    
+}
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bq6unn4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"`;
@@ -58,10 +86,15 @@ async function run() {
         .cookie('token', token, {
             httpOnly:true,
             sameSite:'none',
-            secure:false,
+            secure:true,
         })
         .send({success : true})
     })
+
+    // app.post('/logout', async(req, res)=>{
+    //     const user = req.body;
+    //     res.clearCookie('token', {maxAge:0}).send({success:true})
+    // })
     
     //types
     app.get('/types', async(req, res)=> {
@@ -85,6 +118,7 @@ async function run() {
     //add volunteer post
 
     app.get('/post', async(req, res)=> {
+        
         const posts = await postCollection.find().toArray();
         res.send(posts)
     })
@@ -141,8 +175,28 @@ async function run() {
 
     //volunteer Request
 
-    app.get('/request', async(req, res)=> {
-        const requests = await requestCollection.find().toArray();
+    app.get('/request', verifyToken, async(req, res)=> {
+        console.log('request er query', req.query?.email);
+        console.log('token ta kon user er?',req.user?.email);
+
+        //jodi j user request korece se ebong jar token se ekoi bekti na hoy
+        if(req.user.email !== req.query.email){
+            return res.status(403).send({message: 'forbidden access'})
+        }
+
+
+        console.log(req.query.email === req.user.email);
+        //valo kotha j, token ta tomar, kintu tomak to ar sobar data dibo na, tomake dibo shudu tomar data
+        //se jonne amar database theke tomar data gula filter korbo, kemne korbo ? query diye korbo.
+        
+        let query = {};
+        if (req.query?.email) {
+            query = { volunteerEmail: req.query.email }
+        }
+
+        console.log('query', query);
+        
+        const requests = await requestCollection.find(query).toArray();
         res.send(requests)
     })
 
