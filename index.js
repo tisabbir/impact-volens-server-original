@@ -116,12 +116,29 @@ async function run() {
     })
 
     //add volunteer post
+    // app.get('/post', async(req, res)=> {
+        
+    //     const posts = await postCollection.find().toArray();
+    //     res.send(posts)
+    // })
 
-    app.get('/post', async(req, res)=> {
+    app.get('/public', async(req, res)=> {
         
         const posts = await postCollection.find().toArray();
         res.send(posts)
     })
+
+    app.get('/post', verifyToken, async(req, res)=> {
+        
+        console.log('token jei bektir', req.user);
+
+
+        const query = {email:req.user.email}
+
+        const posts = await postCollection.find(query).toArray();
+        res.send(posts)
+    })
+
 
     app.get('/post/:id', async(req, res)=>{
         const id = req.params.id;
@@ -140,11 +157,11 @@ async function run() {
     app.put('/post/:id', async(req, res)=>{
 
         const id = req.params.id;
-        console.log(id);
+        // console.log(id);
         const filter = {_id : new ObjectId(id)}
         const options = { upsert: true };
         const incomingPost = req.body;
-        console.log('incoming post', incomingPost);
+        // console.log('incoming post', incomingPost);
         //updated value
         const updatePost = {
             $set: {
@@ -176,8 +193,8 @@ async function run() {
     //volunteer Request
 
     app.get('/request', verifyToken, async(req, res)=> {
-        console.log('request er query', req.query?.email);
-        console.log('token ta kon user er?',req.user?.email);
+        // console.log('request er query', req.query?.email);
+        // console.log('token ta kon user er?',req.user?.email);
 
         //jodi j user request korece se ebong jar token se ekoi bekti na hoy
         if(req.user.email !== req.query.email){
@@ -194,7 +211,7 @@ async function run() {
             query = { volunteerEmail: req.query.email }
         }
 
-        console.log('query', query);
+        // console.log('query', query);
         
         const requests = await requestCollection.find(query).toArray();
         res.send(requests)
@@ -202,7 +219,7 @@ async function run() {
 
     app.post('/request', async(req, res)=>{
         const request = req.body;
-        console.log(request);
+        // console.log(request);
         const result = await requestCollection.insertOne(request);
         res.send(result);
     })
