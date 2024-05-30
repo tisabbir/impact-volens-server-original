@@ -77,6 +77,7 @@ async function run() {
     const needCollection = client.db('volunteeringDB').collection('needCollection');
     const postCollection = client.db('volunteeringDB').collection('postCollection');
     const requestCollection = client.db('volunteeringDB').collection('requestCollection');
+    const reviewCollection = client.db('volunteeringDB').collection('reviewCollection');
 
 
     //auth related codes
@@ -239,6 +240,25 @@ async function run() {
         const query = { _id : new ObjectId(id)}
         const result = await requestCollection.deleteOne(query)
         res.send(result)
+    })
+
+    //feedback related api
+    app.get('/feedback/:id', async(req,res)=>{
+        const id = req.params.id;
+        const query = { _id : new ObjectId(id)}
+        const result = await requestCollection.findOne(query)
+        res.send(result)
+    })
+
+    app.get('/reviews', async(req,res)=>{
+        const result = await reviewCollection.find().toArray();
+        res.send(result);
+    })
+
+    app.post('/reviews', async(req,res)=>{
+        const post = req.body;
+        const result = await reviewCollection.insertOne(post);
+        res.send(result);
     })
 
 
